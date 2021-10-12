@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bctlquickstartchart.agentDeploymentName" . }}
+  labels:
+    {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  namespace: {{ include "bctlquickstartchart.namespace" . }}
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
+    template:
+        metadata:
+            labels:
+                app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
+        spec:
+            serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+            containers:
+            - name: bctl-agent
+              image: "bastionzero/bctl-agent:{{ required "A valid .Values.image.tag entry required!" .Values.image.tag }}"
+              resources:
+                {{- toYaml .Values.agentResources | nindent 16 }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              ports:
+              - containerPort: 6001
+                name: bctl-port
+              env:
+              - name: DEV
+                value: "true"
+              - name: SERVICE_URL
+                value: "cloud.bastionzero.com"
+              - name: ACTIVATION_TOKEN
+                value: ""
+              - name: CLUSTER_NAME
+                value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
+              - name: ORG_ID
+                value: ""
+              - name: IDP_ORG_ID
+                value: ""
+              - name: IDP_PROVIDER
+                value: ""
+              - name: IDP_CUSTOM_ISSUER
+                value: "$IDP_CUSTOM_ISSUER"
+              - name: ENVIRONMENT
+                value: ""
+              - name: NAMESPACE
+                value: {{ include "bctlquickstartchart.namespace" . }}
+            {{- with .Values.nodeSelector }}
+            nodeSelector:
+                {{- toYaml . | nindent 8 }}
+            {{- end }}
+            {{- with .Values.affinity }}
+            affinity:
+                {{- toYaml . | nindent 8 }}
+            {{- end }}
+            {{- with .Values.tolerations }}
+            tolerations:
+                {{- toYaml . | nindent 8 }}
+            {{- end }}

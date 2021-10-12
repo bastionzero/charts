@@ -1,0 +1,15 @@
+FROM python:rc-alpine3.12
+
+# Make our temp folder
+RUN mkdir -p /bctl-quickstart-files
+
+# Copy our repo
+COPY . /bctl-quickstart-files
+
+# Install kubectl
+RUN apk add curl && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl 
+
+# Install bctl-quickstart
+RUN pip3 install -e /bctl-quickstart-files/bctl_quickstart/. 

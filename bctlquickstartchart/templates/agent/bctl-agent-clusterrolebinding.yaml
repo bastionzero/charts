@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "bctlquickstartchart.agentClusterRoleBindingName" . }}
+  labels:
+    {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  namespace: {{ include "bctlquickstartchart.namespace" . }}
+subjects:
+    - kind: ServiceAccount
+      namespace: {{ include "bctlquickstartchart.namespace" . }}
+      name: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+roleRef:
+    kind: ClusterRole
+    name: {{ include "bctlquickstartchart.agentClusterRoleName" . }}
+    apiGroup: rbac.authorization.k8s.io

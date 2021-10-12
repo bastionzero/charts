@@ -1,0 +1,75 @@
+# Default values for bctlquickstartchart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  # repository: bastionzero/bctl-quickstart
+  repository: 238681891460.dkr.ecr.us-east-1.amazonaws.com/bctlquickstart
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "2.0.0"
+
+imagePullSecrets: []
+nameOverride: "bctl-quickstart-app"
+fullnameOverride: "bctl-quickstart-chart"
+
+# Namespace
+namespace: "bastionzero"
+
+# Annotations to add to our objects
+annotations: {}
+
+quickstart:
+  # Controls if we create any of the quickstart objects
+  create: true
+  
+  # The name of the service account to use.
+  quickstartServiceAccount: "bctl-quickstart-sa"
+
+  # The name of the kube job to create
+  # If not provided a default one will be created following  the name "bctl-{clusterName}-quickstart-job"
+  quickstartJobName: ""
+  
+agent:
+  # If not set, the following will be defaulted to: "bctl-{clusterName}-agent-{resource}"
+  # The name of the service account to use.
+  serviceAccountName: ""
+  roleBindingName: ""
+  roleName: ""
+  deploymentName: ""
+  clusterName: ""
+  clusterRoleName: ""
+
+# Needed variables that must be set to register the agent
+apiKey: ""
+clusterName: ""
+
+# Optional IDP users to add to the agents policy
+users: []
+targetUsers: []
+targetGroups: []
+
+# Resources to use for the agent and quickstart job
+agentResources: 
+  limits:
+    cpu: 1
+    memory: 1G
+  requests:
+    cpu: 1
+    memory: 1G
+
+quickstartResources: 
+  limits:
+    cpu: 1
+    memory: 1G
+  requests:
+    cpu: 1
+    memory: 1G
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
