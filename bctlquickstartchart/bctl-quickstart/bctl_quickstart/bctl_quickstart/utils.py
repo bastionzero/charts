@@ -31,7 +31,12 @@ def addUsersToPolicy(users, clusterName, apiKey):
     # Now loop over the users, and add each subject
     for user in users:
         # Get the user Id and create our subjectToAdd dict
-        userInfo = getUserInfoFromEmail(user, apiKey)
+        try:
+            userInfo = getUserInfoFromEmail(user, apiKey)
+        except Exception:
+            logger.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
+            continue
+        
         subjectToAdd = {
             'id': userInfo['id'],
             'type': 'User'
@@ -111,7 +116,7 @@ def makeJsonPostRequest(endpoint, apiKey, json={}):
 
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making post request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
-        exit(1)
+        raise Exception()
     
     return toReturn
 
@@ -131,7 +136,7 @@ def makeDataGetRequest(endpoint, apiKey, data={}):
 
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making get request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
-        exit(1)
+        raise Exception()
     
     return toReturn
 
@@ -220,7 +225,7 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
         subprocess.check_call(f'kubectl set env deployment/{deploymentName} -n {namespace} {envVarUpdate}', shell=True, stdout=subprocess.DEVNULL)
     except Exception as e:
         logging.error(f'Error updating deployment {deploymentName} with env vars: {agentEnvVars}')
-        exit(1)
+        raise Exception()
     
     logging.info(f'Waiting for {deploymentName} to be ready. Timeout set to: {TIMEOUT} seconds...')
     # Now wait for it to become ready and start
@@ -261,7 +266,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
 
         if type(clusters) is not list and 'errorType' in clusters.keys():
             logging.error(f'Error making post request to get cluster list: {clusters["errorMsg"]}')
-            exit(1)
+            raise Exception()
 
         # Loop through the list, if we see our clusterName see if its online
         for cluster in clusters:
@@ -277,7 +282,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
         
     if not agentOnline:
         logging.error(f'Agent: {clusterName} never came online!')
-        exit(1)
+        raise Exception()
 
     logging.info(f'Agent: {clusterName} has come online!')
 
