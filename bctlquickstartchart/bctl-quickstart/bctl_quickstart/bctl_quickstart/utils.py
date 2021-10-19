@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 # 3rd party modules
 import requests
-from kubernetes import client, config, utils, watch
+from kubernetes import client, config, watch
 
 # Global variables
 BASE_URL = 'https://cloud.bastionzero.com/api/v1'
@@ -34,7 +34,7 @@ def addUsersToPolicy(users, clusterName, apiKey):
         try:
             userInfo = getUserInfoFromEmail(user, apiKey)
         except Exception:
-            logger.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
+            logging.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
             continue
         
         subjectToAdd = {
@@ -184,11 +184,9 @@ def getAgentEnvVars(apiKey, clusterName, namespace):
     :param str apiKey: API Key to use to make HTTPS requests
     :param str clusterName: Cluster name to use to register this agent
     :param str namespace: Namespace we are in
-    :ret list(str, str): Touble of env var name : var value
+    :ret list(str, str): Tuple of env var name : var value
     """
     logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
-    # Build our headers
-    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
 
     # Make our POST request and get the yaml
     agentYaml = makeJsonPostRequest('kube/get-agent-yaml', apiKey, {
@@ -214,19 +212,33 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
     logging.info(f'Updating agent env vars for deployment: {deploymentName}...')
     # Lets load our kube config
     config.load_incluster_config()
-    k8s_client = client.ApiClient()
+    deploymentClient = client.AppsV1Api()
+
+    # Get our deployment
+    resp = deploymentClient.list_namespaced_deployment(namespace=namespace)
+    deployment = None
+    for potentialDeployment in resp.items:
+        if (potentialDeployment.metadata.name == deploymentName):
+            deployment = potentialDeployment
+            break
+    
+    if deployment is None:
+        logging.error(f'Unable to find any deployments with the name: {deploymentName}')
+        raise Exception()
 
     # Now loop through the list of env vars and update the deployment
-    envVarUpdate = ""
     for name, value in agentEnvVars:
-        envVarUpdate += f' {name}={value}'
-    
-    try:
-        subprocess.check_call(f'kubectl set env deployment/{deploymentName} -n {namespace} {envVarUpdate}', shell=True, stdout=subprocess.DEVNULL)
-    except Exception as e:
-        logging.error(f'Error updating deployment {deploymentName} with env vars: {agentEnvVars}')
-        raise Exception()
-    
+        # Loop and find the env var in the deployment
+        for envVarPair in deployment.spec.template.spec.containers[0].env:
+            if envVarPair['name'] == name:
+                # Update the value
+                envVarPair['value'] = value
+
+    # Patch the deployment 
+    deploymentClient.patch_namespaced_deployment(
+        name=deploymentName, namespace=namespace, body=deployment
+    )
+
     logging.info(f'Waiting for {deploymentName} to be ready. Timeout set to: {TIMEOUT} seconds...')
     # Now wait for it to become ready and start
     w = watch.Watch()
@@ -246,6 +258,10 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
             return
         
         logging.info(f'Still waiting...')
+    
+    # Else something went wrong, raise an exception
+    logging.error(f'Error waiting for {deploymentName} to be ready.')
+    raise Exception()
 
 def checkAgentOnlineBastion(apiKey, clusterName):
     """
