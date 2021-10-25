@@ -1,6 +1,5 @@
 # Built in modules
 import logging
-from os import name
 
 # 3rd party modules
 import click
