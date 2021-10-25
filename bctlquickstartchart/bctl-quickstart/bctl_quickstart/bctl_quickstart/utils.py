@@ -1,6 +1,5 @@
 # Built-in modules 
 import yaml 
-import subprocess
 import time
 import json
 import logging
@@ -17,9 +16,29 @@ TIMEOUT=300
 # Set our logging level
 logging.getLogger().setLevel(logging.INFO)
 
+
+def deleteJob(jobName, namespace):
+    """
+    Helper function to cleanup the Kube job (and along with it any traces of the API key)
+    :param str jobName: Job name to delete
+    :param str namespace: Namespace we are working inside
+    """
+    # Lets load our kube config
+    config.load_incluster_config()
+    batchApiClient = client.BatchV1Api()
+
+    # Delete our job now
+    logging.info(f'Deleting job: {jobName}...')
+
+    # Ref: https://github.com/kubernetes-client/python/issues/234
+    body = client.V1DeleteOptions(propagation_policy='Background')
+
+    batchApiClient.delete_namespaced_job(name=jobName, namespace=namespace, body=body)
+    
+
 def addUsersToPolicy(users, clusterName, apiKey):
     """
-    Helper funnction to add users to a policy
+    Helper function to add users to a policy
     :param list(str) users: List of IDP users
     :param str clusterName: Cluster name to use to register this agent
     :param str apiKey: API Key to use to make HTTPS requests
@@ -230,9 +249,9 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
     for name, value in agentEnvVars:
         # Loop and find the env var in the deployment
         for envVarPair in deployment.spec.template.spec.containers[0].env:
-            if envVarPair['name'] == name:
+            if envVarPair.name == name:
                 # Update the value
-                envVarPair['value'] = value
+                envVarPair.value = value
 
     # Patch the deployment 
     deploymentClient.patch_namespaced_deployment(

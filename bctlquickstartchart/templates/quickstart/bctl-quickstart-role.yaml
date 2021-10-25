@@ -17,4 +17,7 @@ rules:
     - apiGroups: ["apps"]
       resources: ["deployments"]
       verbs: ["get", "patch", "list"]
+    - apiGroups: ["batch"]
+      resources: ["jobs"]
+      verbs: ["delete"]
 {{- end }}

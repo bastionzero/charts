@@ -31,6 +31,8 @@ spec:
                 value: "{{ include "bctlquickstartchart.agentDeploymentName" . }}"
               - name: NAMESPACE
                 value: "{{ include "bctlquickstartchart.namespace" . }}"
+              - name: QUICKSTART_JOB_NAME
+                value: "{{ include "bctlquickstartchart.quickstartJobName" . }}"
               command: 
               - bctl-quickstart
               args:
