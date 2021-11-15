@@ -5,8 +5,7 @@
 replicaCount: 1
 
 image:
-  # repository: bastionzero/bctl-quickstart
-  repository: 238681891460.dkr.ecr.us-east-1.amazonaws.com/bctlquickstart
+  repository: bastionzero/bctl-quickstart
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "2.0.0"
