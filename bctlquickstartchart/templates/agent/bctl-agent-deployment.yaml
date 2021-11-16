@@ -33,7 +33,7 @@ spec:
               - name: DEV
                 value: "true"
               - name: SERVICE_URL
-                value: "cloud.bastionzero.com"
+                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
               - name: ACTIVATION_TOKEN
                 value: ""
               - name: CLUSTER_NAME

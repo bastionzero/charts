@@ -135,4 +135,3 @@ Create the name of the agent clusterrole to use
 {{- define "bctlquickstartchart.agentClusterRoleName" -}}
 {{- default (print "bctl-" .Values.clusterName "-agent-clusterrole") .Values.agent.clusterRoleName }}
 {{- end }}
-

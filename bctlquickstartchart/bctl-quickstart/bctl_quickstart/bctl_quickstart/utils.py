@@ -1,5 +1,6 @@
 # Built-in modules 
-import yaml 
+import yaml
+import os
 import time
 import json
 import logging
@@ -10,7 +11,8 @@ import requests
 from kubernetes import client, config, watch
 
 # Global variables
-BASE_URL = 'https://cloud.bastionzero.com/api/v1'
+SERVICE_URL = os.environ.get('SERVICE_URL', 'https://cloud.bastionzero.com')
+BASE_URL = f'{SERVICE_URL}/api/v1'
 TIMEOUT=300
 
 # Set our logging level
