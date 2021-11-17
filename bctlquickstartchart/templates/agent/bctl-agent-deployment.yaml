@@ -22,7 +22,7 @@ spec:
             serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
             containers:
             - name: bctl-agent
-              image: "bastionzero/bctl-agent:{{ required "A valid .Values.image.tag entry required!" .Values.image.tag }}"
+              image: "bastionzero/bctl-agent:{{ required "A valid .Values.image.agentTag entry required!" .Values.image.agentTag }}"
               resources:
                 {{- toYaml .Values.agentResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -38,6 +38,8 @@ spec:
                 value: ""
               - name: CLUSTER_NAME
                 value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
+              - name: CLUSTER_ID
+                value: ""
               - name: ORG_ID
                 value: ""
               - name: IDP_ORG_ID
