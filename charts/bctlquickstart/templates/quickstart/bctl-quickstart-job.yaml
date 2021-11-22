@@ -5,10 +5,10 @@ metadata:
   name: {{ include "bctlquickstartchart.quickstartJobName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
-  {{- with .Values.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
   namespace: {{ include "bctlquickstartchart.namespace" . }}
 spec:
     backoffLimit: 0
