@@ -8,7 +8,7 @@ image:
   repository: bastionzero/bctl-quickstart
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.0" # For our quickstart job
+  tag: 1.1.0 # For our quickstart job
   agentTag: "latest" # For our actual agent
 
 imagePullSecrets: []
