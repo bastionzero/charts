@@ -34,7 +34,7 @@ spec:
               - name: QUICKSTART_JOB_NAME
                 value: "{{ include "bctlquickstartchart.quickstartJobName" . }}"
               - name: SERVICE_URL
-                value: "https://{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
+                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
               command: 
               - bctl-quickstart
               args:

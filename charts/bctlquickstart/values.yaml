@@ -74,4 +74,4 @@ tolerations: []
 
 affinity: {}
 
-serviceUrl: "cloud.bastionzero.com"
+serviceUrl: "https://cloud.bastionzero.com"
