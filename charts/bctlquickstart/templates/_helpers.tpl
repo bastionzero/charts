@@ -76,14 +76,14 @@ Create the bctl-quickstart-job name
 Create the bctl-quickstart-Role name
 */}}
 {{- define "bctlquickstartchart.quickstartRoleName" -}}
-{{- "(include bctlquickstartchart.quickstartServiceAccountName .)-role" }}
+{{- printf "%s-role" (include "bctlquickstartchart.quickstartServiceAccountName" .) }}
 {{- end }}
 
 {{/*
 Create the bctl-quickstart-RoleBinding name
 */}}
 {{- define "bctlquickstartchart.quickstartRoleBindingName" -}}
-{{- "(include bctlquickstartchart.quickstartServiceAccountName .)-rolebinding" }}
+{{- printf "%s-rolebinding" (include "bctlquickstartchart.quickstartServiceAccountName" .) }}
 {{- end }}
 
 

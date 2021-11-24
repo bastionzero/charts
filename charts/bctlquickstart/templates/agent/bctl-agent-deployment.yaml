@@ -33,11 +33,11 @@ spec:
               - name: DEV
                 value: "true"
               - name: SERVICE_URL
-                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
+                value: ""
               - name: ACTIVATION_TOKEN
                 value: ""
               - name: CLUSTER_NAME
-                value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
+                value: ""
               - name: CLUSTER_ID
                 value: ""
               - name: ORG_ID
@@ -47,7 +47,7 @@ spec:
               - name: IDP_PROVIDER
                 value: ""
               - name: IDP_CUSTOM_ISSUER
-                value: "$IDP_CUSTOM_ISSUER"
+                value: ""
               - name: ENVIRONMENT
                 value: ""
               - name: NAMESPACE
