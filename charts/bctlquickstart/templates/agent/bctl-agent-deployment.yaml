@@ -36,9 +36,9 @@ spec:
                 value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
               - name: ACTIVATION_TOKEN
                 value: ""
-              - name: CLUSTER_NAME
+              - name: TARGET_NAME
                 value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
-              - name: CLUSTER_ID
+              - name: TARGET_ID
                 value: ""
               - name: ORG_ID
                 value: ""
