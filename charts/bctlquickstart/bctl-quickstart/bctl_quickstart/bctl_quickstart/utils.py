@@ -12,7 +12,7 @@ from kubernetes import client, config, watch
 
 # Global variables
 SERVICE_URL = os.environ.get('SERVICE_URL', 'https://cloud.bastionzero.com')
-BASE_URL = f'{SERVICE_URL}/api/v1'
+BASE_URL = f'{SERVICE_URL}/api/v2'
 TIMEOUT=300
 
 # Set our logging level
