@@ -54,6 +54,7 @@ def addUsersToPolicy(users, clusterName, apiKey):
         # Get the user Id and create our subjectToAdd dict
         try:
             userInfo = getUserInfoFromEmail(user, apiKey)
+            print(userInfo)
         except Exception:
             logging.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
             continue
@@ -62,7 +63,7 @@ def addUsersToPolicy(users, clusterName, apiKey):
             'id': userInfo['id'],
             'type': 'User'
         }
-        if subjectToAdd not in policy['subjects']:
+        if userInfo['id'] not in [user['id'] for user in policy['subjects']]:
             policy['subjects'].append(subjectToAdd)
         else:
             logging.warning(f'Skipping {user} as the policy already has them as a subject')
@@ -291,13 +292,16 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
         logging.error(f'Unable to find any deployments with the name: {deploymentName}')
         raise Exception()
 
-    # Now loop through the list of env vars and update the deployment
+    # Now loop through the list of env vars passed from bastion, and set them on the agent
+    newEnvVars = []
     for name, value in agentEnvVars:
-        # Loop and find the env var in the deployment
-        for envVarPair in deployment.spec.template.spec.containers[0].env:
-            if envVarPair.name == name:
-                # Update the value
-                envVarPair.value = value
+        newEnvVar = {
+            'name': name,
+            'value': value
+        }
+        newEnvVars.append(newEnvVar)
+    deployment.spec.template.spec.containers[0].env = newEnvVars
+      
 
     # Patch the deployment 
     deploymentClient.patch_namespaced_deployment(
