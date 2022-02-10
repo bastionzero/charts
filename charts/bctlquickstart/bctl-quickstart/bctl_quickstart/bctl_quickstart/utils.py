@@ -241,13 +241,6 @@ def updatePolicy(policy, apiKey):
     :param dict policy: Updated policy
     :param str apiKey: Api key to use to make HTTPS requests
     """
-    # First json seralize the context 
-    jsonSerializedContext = json.dumps(policy['context'])
-    policy['context'] = jsonSerializedContext
-
-    # Now update the metadata key -> policyMetadata
-    policy['policyMetadata'] = policy.pop('metadata')
-
     makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
 def getAgentEnvVars(apiKey, clusterName, namespace):
