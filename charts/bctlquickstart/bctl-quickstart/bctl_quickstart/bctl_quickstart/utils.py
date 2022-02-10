@@ -215,7 +215,7 @@ def getAgentEnvVars(apiKey, clusterName, namespace):
     logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
 
     # Make our POST request and get the yaml
-    agentYaml = makeJsonPostRequest('kube/get-agent-yaml', apiKey, {
+    agentYaml = makeJsonPostRequest('targets/kube', apiKey, {
         'ClusterName': clusterName,
         'Labels': {
             'cluster-name': f'{clusterName}-bzero'
