@@ -167,6 +167,29 @@ def makeJsonPatchRequest(endpoint, apiKey, json={}):
     
     return toReturn
 
+def makeJsonGetRequest(endpoint, apiKey, json={}):
+    """
+    Helper function to make get request
+    :param str endpoint: Endpoint to hit
+    :param str apiKey: Api key to use to build header
+    :param dict json: Optional json data
+    """
+    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
+
+    resp = requests.get(
+        f'{BASE_URL}/{endpoint}',
+        headers=headers,
+        json=json
+    )
+    resp.raise_for_status()
+
+    toReturn = resp.json()
+    if type(toReturn) is not list and 'errorType' in toReturn.keys():
+        logging.error(f'Error making get request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
+        raise Exception()
+    
+    return toReturn
+
 def makeDataGetRequest(endpoint, apiKey, data={}):
     """
     Helper function to make post request
@@ -204,7 +227,7 @@ def getPolicy(clusterName, apiKey):
     :ret dict: Dict of policy
     """
     # List all our policies
-    policyList = makeJsonPostRequest('policies/kubernetes', apiKey)
+    policyList = makeJsonGetRequest('policies/kubernetes', apiKey)
 
     # Loop till we find the one we want 
     policyName = f'{clusterName}-policy'
