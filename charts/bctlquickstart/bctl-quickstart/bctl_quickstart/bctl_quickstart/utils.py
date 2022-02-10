@@ -54,7 +54,6 @@ def addUsersToPolicy(users, clusterName, apiKey):
         # Get the user Id and create our subjectToAdd dict
         try:
             userInfo = getUserInfoFromEmail(user, apiKey)
-            print(userInfo)
         except Exception:
             logging.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
             continue
