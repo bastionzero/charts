@@ -85,10 +85,10 @@ def addTargetUsersToPolicy(targetUsers, clusterName, apiKey):
     # Now loop over the users, and add each subject
     for targetUser in targetUsers:
         # Update the key in the context
-        if targetUser not in policy['context']['clusterUsers'].keys():
-            policy['context']['clusterUsers'][targetUser] = {
+        if targetUser not in [clusterUser['name'] for clusterUser in policy['clusterUsers']]:
+            policy['clusterUsers'].append({
                 'name': targetUser
-            }
+            })
         else:
             logging.warning(f'Skipping {targetUser} as the policy already has them as a targetUser')
     
@@ -110,10 +110,10 @@ def addTargetGroupsToPolicy(targetGroups, clusterName, apiKey):
     # Now loop over the users, and add each subject
     for targetGroup in targetGroups:
         # Update the key in the context
-        if targetGroup not in policy['context']['clusterGroups'].keys():
-            policy['context']['clusterGroups'][targetGroup] = {
+        if targetGroup not  in [clusterGroups['name'] for clusterGroups in policy['clusterGroups']]:
+            policy['clusterGroups'].append({
                 'name': targetGroup
-            }
+            })
         else:
             logging.warning(f'Skipping {targetGroup} as the policy already has them as a targetGroup')
     
@@ -140,6 +140,29 @@ def makeJsonPostRequest(endpoint, apiKey, json={}):
     toReturn = resp.json()
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making post request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
+        raise Exception()
+    
+    return toReturn
+
+def makeJsonPatchRequest(endpoint, apiKey, json={}):
+    """
+    Helper function to make patch request
+    :param str endpoint: Endpoint to hit
+    :param str apiKey: Api key to use to build header
+    :param dict json: Optional json data
+    """
+    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
+
+    resp = requests.patch(
+        f'{BASE_URL}/{endpoint}',
+        headers=headers,
+        json=json
+    )
+    resp.raise_for_status()
+
+    toReturn = resp.json()
+    if type(toReturn) is not list and 'errorType' in toReturn.keys():
+        logging.error(f'Error making patch request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
         raise Exception()
     
     return toReturn
@@ -171,7 +194,7 @@ def getUserInfoFromEmail(userEmail, apiKey):
     Helper function to get a users id from their email
     :ret dict: Users info including email and Id
     """
-    return makeJsonPostRequest('kube/get-user', apiKey, {'email': userEmail})
+    return makeJsonPostRequest(f'user/{userEmail}', apiKey)
 
 def getPolicy(clusterName, apiKey):
     """
@@ -181,7 +204,7 @@ def getPolicy(clusterName, apiKey):
     :ret dict: Dict of policy
     """
     # List all our policies
-    policyList = makeJsonPostRequest('Policy/list', apiKey)
+    policyList = makeJsonPostRequest('policies/kubernetes', apiKey)
 
     # Loop till we find the one we want 
     policyName = f'{clusterName}-policy'
@@ -202,7 +225,7 @@ def updatePolicy(policy, apiKey):
     # Now update the metadata key -> policyMetadata
     policy['policyMetadata'] = policy.pop('metadata')
 
-    makeJsonPostRequest('Policy/edit', apiKey, policy)
+    makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
 def getAgentEnvVars(apiKey, clusterName, namespace):
     """
@@ -216,7 +239,7 @@ def getAgentEnvVars(apiKey, clusterName, namespace):
 
     # Make our POST request and get the yaml
     agentYaml = makeJsonPostRequest('targets/kube', apiKey, {
-        'ClusterName': clusterName,
+        'Name': clusterName,
         'Labels': {
             'cluster-name': f'{clusterName}-bzero'
         },
@@ -304,7 +327,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
     startTime = datetime.now()
     while not agentOnline and datetime.now() - startTime < timedelta(seconds=TIMEOUT):
         # Get the list of agent info
-        clusters = makeDataGetRequest('kube/list', apiKey)
+        clusters = makeDataGetRequest('targets/kube', apiKey)
 
         if type(clusters) is not list and 'errorType' in clusters.keys():
             logging.error(f'Error making post request to get cluster list: {clusters["errorMsg"]}')
@@ -312,7 +335,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
 
         # Loop through the list, if we see our clusterName see if its online
         for cluster in clusters:
-            if cluster['clusterName'] == clusterName:
+            if cluster['name'] == clusterName:
                 if cluster['status'] == 'Online':
                     agentOnline = True
                     continue
