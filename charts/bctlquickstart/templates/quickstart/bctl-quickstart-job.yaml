@@ -5,10 +5,10 @@ metadata:
   name: {{ include "bctlquickstartchart.quickstartJobName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
-  {{- with .Values.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": hook-succeeded
   namespace: {{ include "bctlquickstartchart.namespace" . }}
 spec:
     backoffLimit: 0
@@ -34,7 +34,7 @@ spec:
               - name: QUICKSTART_JOB_NAME
                 value: "{{ include "bctlquickstartchart.quickstartJobName" . }}"
               - name: SERVICE_URL
-                value: "https://{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
+                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
               command: 
               - bctl-quickstart
               args:

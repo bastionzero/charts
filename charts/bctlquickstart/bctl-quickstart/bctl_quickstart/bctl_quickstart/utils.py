@@ -129,12 +129,15 @@ def makeJsonPostRequest(endpoint, apiKey, json={}):
     :param dict json: Optional json data
     """
     headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
-    toReturn = requests.post(
+
+    resp = requests.post(
         f'{BASE_URL}/{endpoint}',
         headers=headers,
         json=json
-    ).json()
+    )
+    resp.raise_for_status()
 
+    toReturn = resp.json()
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making post request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
         raise Exception()
@@ -149,12 +152,14 @@ def makeDataGetRequest(endpoint, apiKey, data={}):
     :param dict json: Optional json data
     """
     headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
-    toReturn = requests.get(
+    resp = requests.get(
         f'{BASE_URL}/{endpoint}',
         headers=headers,
         data=data
-    ).json()
-
+    )
+    resp.raise_for_status()
+    
+    toReturn = resp.json()
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making get request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
         raise Exception()
