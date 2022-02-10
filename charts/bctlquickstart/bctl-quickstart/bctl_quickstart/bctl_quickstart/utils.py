@@ -48,6 +48,8 @@ def addUsersToPolicy(users, clusterName, apiKey):
     logging.info(f'Adding users: [{",".join(users)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for user in users:
@@ -81,6 +83,8 @@ def addTargetUsersToPolicy(targetUsers, clusterName, apiKey):
     logging.info(f'Adding targetUsers: [{",".join(targetUsers)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for targetUser in targetUsers:
@@ -106,6 +110,8 @@ def addTargetGroupsToPolicy(targetGroups, clusterName, apiKey):
     logging.info(f'Adding targetGroups: [{",".join(targetGroups)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for targetGroup in targetGroups:
@@ -217,7 +223,7 @@ def getUserInfoFromEmail(userEmail, apiKey):
     Helper function to get a users id from their email
     :ret dict: Users info including email and Id
     """
-    return makeJsonPostRequest(f'user/{userEmail}', apiKey)
+    return makeJsonGetRequest(f'users/{userEmail}', apiKey)
 
 def getPolicy(clusterName, apiKey):
     """
