@@ -173,7 +173,7 @@ def makeJsonPatchRequest(endpoint, apiKey, json={}):
     
     return toReturn
 
-def makeJsonGetRequest(endpoint, apiKey, json={}):
+def makeJsonGetRequest(endpoint, apiKey):
     """
     Helper function to make get request
     :param str endpoint: Endpoint to hit
@@ -184,8 +184,7 @@ def makeJsonGetRequest(endpoint, apiKey, json={}):
 
     resp = requests.get(
         f'{BASE_URL}/{endpoint}',
-        headers=headers,
-        json=json
+        headers=headers
     )
     resp.raise_for_status()
 
@@ -344,8 +343,6 @@ def checkAgentOnlineBastion(apiKey, clusterName):
     :param str clusterName: Cluster name to use to register this agent
     """
     logging.info(f'Checking to see if agent: {clusterName} has come online in BastionZero. Timeout set to: {TIMEOUT}...')
-    # Build our headers
-    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
 
     # Keep making our POST request until we see our agent online
     agentOnline = False
