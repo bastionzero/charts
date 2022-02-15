@@ -12,7 +12,7 @@ from kubernetes import client, config, watch
 
 # Global variables
 SERVICE_URL = os.environ.get('SERVICE_URL', 'https://cloud.bastionzero.com')
-BASE_URL = f'{SERVICE_URL}/api/v1'
+BASE_URL = f'{SERVICE_URL}/api/v2'
 TIMEOUT=300
 
 # Set our logging level
@@ -48,6 +48,8 @@ def addUsersToPolicy(users, clusterName, apiKey):
     logging.info(f'Adding users: [{",".join(users)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for user in users:
@@ -62,7 +64,7 @@ def addUsersToPolicy(users, clusterName, apiKey):
             'id': userInfo['id'],
             'type': 'User'
         }
-        if subjectToAdd not in policy['subjects']:
+        if userInfo['id'] not in [user['id'] for user in policy['subjects']]:
             policy['subjects'].append(subjectToAdd)
         else:
             logging.warning(f'Skipping {user} as the policy already has them as a subject')
@@ -81,14 +83,16 @@ def addTargetUsersToPolicy(targetUsers, clusterName, apiKey):
     logging.info(f'Adding targetUsers: [{",".join(targetUsers)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for targetUser in targetUsers:
         # Update the key in the context
-        if targetUser not in policy['context']['clusterUsers'].keys():
-            policy['context']['clusterUsers'][targetUser] = {
+        if targetUser not in [clusterUser['name'] for clusterUser in policy['clusterUsers']]:
+            policy['clusterUsers'].append({
                 'name': targetUser
-            }
+            })
         else:
             logging.warning(f'Skipping {targetUser} as the policy already has them as a targetUser')
     
@@ -106,14 +110,16 @@ def addTargetGroupsToPolicy(targetGroups, clusterName, apiKey):
     logging.info(f'Adding targetGroups: [{",".join(targetGroups)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
+    if policy is None:
+        logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
 
     # Now loop over the users, and add each subject
     for targetGroup in targetGroups:
         # Update the key in the context
-        if targetGroup not in policy['context']['clusterGroups'].keys():
-            policy['context']['clusterGroups'][targetGroup] = {
+        if targetGroup not  in [clusterGroups['name'] for clusterGroups in policy['clusterGroups']]:
+            policy['clusterGroups'].append({
                 'name': targetGroup
-            }
+            })
         else:
             logging.warning(f'Skipping {targetGroup} as the policy already has them as a targetGroup')
     
@@ -140,6 +146,52 @@ def makeJsonPostRequest(endpoint, apiKey, json={}):
     toReturn = resp.json()
     if type(toReturn) is not list and 'errorType' in toReturn.keys():
         logging.error(f'Error making post request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
+        raise Exception()
+    
+    return toReturn
+
+def makeJsonPatchRequest(endpoint, apiKey, json={}):
+    """
+    Helper function to make patch request
+    :param str endpoint: Endpoint to hit
+    :param str apiKey: Api key to use to build header
+    :param dict json: Optional json data
+    """
+    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
+
+    resp = requests.patch(
+        f'{BASE_URL}/{endpoint}',
+        headers=headers,
+        json=json
+    )
+    resp.raise_for_status()
+
+    toReturn = resp.json()
+    if type(toReturn) is not list and 'errorType' in toReturn.keys():
+        logging.error(f'Error making patch request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
+        raise Exception()
+    
+    return toReturn
+
+def makeJsonGetRequest(endpoint, apiKey, json={}):
+    """
+    Helper function to make get request
+    :param str endpoint: Endpoint to hit
+    :param str apiKey: Api key to use to build header
+    :param dict json: Optional json data
+    """
+    headers = {'X-API-KEY': apiKey, 'Content-Type': 'application/json'}
+
+    resp = requests.get(
+        f'{BASE_URL}/{endpoint}',
+        headers=headers,
+        json=json
+    )
+    resp.raise_for_status()
+
+    toReturn = resp.json()
+    if type(toReturn) is not list and 'errorType' in toReturn.keys():
+        logging.error(f'Error making get request for endpoint: {endpoint}. Error: {toReturn["errorMsg"]}')
         raise Exception()
     
     return toReturn
@@ -171,7 +223,7 @@ def getUserInfoFromEmail(userEmail, apiKey):
     Helper function to get a users id from their email
     :ret dict: Users info including email and Id
     """
-    return makeJsonPostRequest('kube/get-user', apiKey, {'email': userEmail})
+    return makeJsonGetRequest(f'users/{userEmail}', apiKey)
 
 def getPolicy(clusterName, apiKey):
     """
@@ -181,7 +233,7 @@ def getPolicy(clusterName, apiKey):
     :ret dict: Dict of policy
     """
     # List all our policies
-    policyList = makeJsonPostRequest('Policy/list', apiKey)
+    policyList = makeJsonGetRequest('policies/kubernetes', apiKey)
 
     # Loop till we find the one we want 
     policyName = f'{clusterName}-policy'
@@ -195,14 +247,7 @@ def updatePolicy(policy, apiKey):
     :param dict policy: Updated policy
     :param str apiKey: Api key to use to make HTTPS requests
     """
-    # First json seralize the context 
-    jsonSerializedContext = json.dumps(policy['context'])
-    policy['context'] = jsonSerializedContext
-
-    # Now update the metadata key -> policyMetadata
-    policy['policyMetadata'] = policy.pop('metadata')
-
-    makeJsonPostRequest('Policy/edit', apiKey, policy)
+    makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
 def getAgentEnvVars(apiKey, clusterName, namespace):
     """
@@ -215,8 +260,8 @@ def getAgentEnvVars(apiKey, clusterName, namespace):
     logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
 
     # Make our POST request and get the yaml
-    agentYaml = makeJsonPostRequest('kube/get-agent-yaml', apiKey, {
-        'ClusterName': clusterName,
+    agentYaml = makeJsonPostRequest('targets/kube', apiKey, {
+        'Name': clusterName,
         'Labels': {
             'cluster-name': f'{clusterName}-bzero'
         },
@@ -252,13 +297,16 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
         logging.error(f'Unable to find any deployments with the name: {deploymentName}')
         raise Exception()
 
-    # Now loop through the list of env vars and update the deployment
+    # Now loop through the list of env vars passed from bastion, and set them on the agent
+    newEnvVars = []
     for name, value in agentEnvVars:
-        # Loop and find the env var in the deployment
-        for envVarPair in deployment.spec.template.spec.containers[0].env:
-            if envVarPair.name == name:
-                # Update the value
-                envVarPair.value = value
+        newEnvVar = {
+            'name': name,
+            'value': value
+        }
+        newEnvVars.append(newEnvVar)
+    deployment.spec.template.spec.containers[0].env = newEnvVars
+      
 
     # Patch the deployment 
     deploymentClient.patch_namespaced_deployment(
@@ -304,7 +352,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
     startTime = datetime.now()
     while not agentOnline and datetime.now() - startTime < timedelta(seconds=TIMEOUT):
         # Get the list of agent info
-        clusters = makeDataGetRequest('kube/list', apiKey)
+        clusters = makeDataGetRequest('targets/kube', apiKey)
 
         if type(clusters) is not list and 'errorType' in clusters.keys():
             logging.error(f'Error making post request to get cluster list: {clusters["errorMsg"]}')
@@ -312,7 +360,7 @@ def checkAgentOnlineBastion(apiKey, clusterName):
 
         # Loop through the list, if we see our clusterName see if its online
         for cluster in clusters:
-            if cluster['clusterName'] == clusterName:
+            if cluster['name'] == clusterName:
                 if cluster['status'] == 'Online':
                     agentOnline = True
                     continue
