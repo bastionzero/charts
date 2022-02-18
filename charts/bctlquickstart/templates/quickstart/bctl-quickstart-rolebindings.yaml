@@ -9,10 +9,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  namespace: {{ include "bctlquickstartchart.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 subjects:
     - kind: ServiceAccount
-      namespace: {{ include "bctlquickstartchart.namespace" . }}
+      namespace: {{ .Release.Namespace }}
       name: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}
 roleRef:
     kind: Role

@@ -8,7 +8,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  namespace: {{ include "bctlquickstartchart.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
     replicas: 1
     selector:
@@ -51,7 +51,7 @@ spec:
               - name: ENVIRONMENT
                 value: ""
               - name: NAMESPACE
-                value: {{ include "bctlquickstartchart.namespace" . }}
+                value: {{ .Release.Namespace }}
             {{- with .Values.nodeSelector }}
             nodeSelector:
                 {{- toYaml . | nindent 8 }}
