@@ -20,9 +20,15 @@ spec:
                 app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
         spec:
             serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+            {{- if .Values.image.agentImagePullSecrets }}
+            imagePullSecrets:
+            {{- range .Values.image.agentImagePullSecrets }}
+              - name: {{ . }}
+            {{- end }}
+            {{- end }}
             containers:
             - name: bctl-agent
-              image: "bastionzero/bctl-agent:{{ required "A valid .Values.image.agentTag entry required!" .Values.image.agentTag }}"
+              image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentTag entry required!" .Values.image.agentTag }}"
               resources:
                 {{- toYaml .Values.agentResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}

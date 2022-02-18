@@ -10,8 +10,9 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "2.0.0" # For our quickstart job
   agentTag: "latest" # For our actual agent
+  agentImageName: bastionzero/bctl-agent # For our actual agent
+  agentImagePullSecrets: [] # For our actual agent
 
-imagePullSecrets: []
 nameOverride: "bctl-quickstart-app"
 fullnameOverride: "bctl-quickstart-chart"
 
