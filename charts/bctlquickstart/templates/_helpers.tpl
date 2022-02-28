@@ -59,13 +59,6 @@ Create the name of the quickstart service account to use
 {{- end }}
 
 {{/*
-Create the namespace
-*/}}
-{{- define "bctlquickstartchart.namespace" -}}
-{{- .Values.namespace }}
-{{- end }}
-
-{{/*
 Create the bctl-quickstart-job name
 */}}
 {{- define "bctlquickstartchart.quickstartJobName" -}}

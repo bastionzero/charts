@@ -9,7 +9,7 @@ metadata:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": hook-succeeded
-  namespace: {{ include "bctlquickstartchart.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
     backoffLimit: 0
     template:
@@ -18,7 +18,7 @@ spec:
             restartPolicy: Never
             containers:
             - name: {{ .Chart.Name }}
-              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              image: "{{ .Values.image.repository }}:{{ .Values.image.quickstartTag }}"
               resources:
                 {{- toYaml .Values.quickstartResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -30,7 +30,7 @@ spec:
               - name: DEPLOYMENT_NAME
                 value: "{{ include "bctlquickstartchart.agentDeploymentName" . }}"
               - name: NAMESPACE
-                value: "{{ include "bctlquickstartchart.namespace" . }}"
+                value: "{{ .Release.Namespace }}"
               - name: QUICKSTART_JOB_NAME
                 value: "{{ include "bctlquickstartchart.quickstartJobName" . }}"
               - name: SERVICE_URL

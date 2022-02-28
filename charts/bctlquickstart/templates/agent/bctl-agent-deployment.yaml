@@ -8,7 +8,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  namespace: {{ include "bctlquickstartchart.namespace" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
     replicas: 1
     selector:
@@ -20,9 +20,15 @@ spec:
                 app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
         spec:
             serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+            {{- if .Values.image.agentImagePullSecrets }}
+            imagePullSecrets:
+            {{- range .Values.image.agentImagePullSecrets }}
+              - name: {{ . }}
+            {{- end }}
+            {{- end }}
             containers:
             - name: bctl-agent
-              image: "bastionzero/bctl-agent:{{ required "A valid .Values.image.agentTag entry required!" .Values.image.agentTag }}"
+              image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentImageTag entry required!" .Values.image.agentImageTag }}"
               resources:
                 {{- toYaml .Values.agentResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -51,7 +57,7 @@ spec:
               - name: ENVIRONMENT
                 value: ""
               - name: NAMESPACE
-                value: {{ include "bctlquickstartchart.namespace" . }}
+                value: {{ .Release.Namespace }}
             {{- with .Values.nodeSelector }}
             nodeSelector:
                 {{- toYaml . | nindent 8 }}
