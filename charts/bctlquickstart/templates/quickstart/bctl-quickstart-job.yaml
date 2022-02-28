@@ -18,7 +18,7 @@ spec:
             restartPolicy: Never
             containers:
             - name: {{ .Chart.Name }}
-              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              image: "{{ .Values.image.repository }}:{{ .Values.image.quickstartTag }}"
               resources:
                 {{- toYaml .Values.quickstartResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
