@@ -18,7 +18,7 @@ spec:
             restartPolicy: Never
             containers:
             - name: {{ .Chart.Name }}
-              image: "{{ .Values.image.repository }}:{{ .Values.image.quickstartTag }}"
+              image: "{{ .Values.image.quickstartImageName }}:{{ .Values.image.quickstartImageTag }}"
               resources:
                 {{- toYaml .Values.quickstartResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -55,8 +55,9 @@ spec:
               - "-targetGroups"
               - "{{ $targetGroup }}"
               {{- end }}
+              {{- end }}
               {{- if .Values.environmentName }}
-              - "environment"
+              - "-environment"
               - "{{ .Values.environmentName }}"
               {{- end }}
             {{- with .Values.nodeSelector }}
