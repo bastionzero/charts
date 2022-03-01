@@ -251,13 +251,13 @@ def updatePolicy(policy, apiKey):
     """
     makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
-def getAgentEnvVars(apiKey, clusterName, namespace, environment):
+def getAgentEnvVars(apiKey, clusterName, namespace, environmentName):
     """
     Helper funnction to get agent env vars from BastionZero
     :param str apiKey: API Key to use to make HTTPS requests
     :param str clusterName: Cluster name to use to register this agent
     :param str namespace: Namespace we are in
-    :param str environment: Name of the environment to put the cluster into
+    :param str environmentName: Name of the environment to put the cluster into
     :ret list(str, str): Tuple of env var name : var value
     """
     logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
@@ -270,10 +270,17 @@ def getAgentEnvVars(apiKey, clusterName, namespace, environment):
         },
         'Namespace': namespace
     }
-    if (environment):
+    if (environmentName):
         # Lookup the env id from the environment
-        # TODO: This
-        params['Environment'] = environment
+        listOfEnvs = makeJsonGetRequest('environments', apiKey)
+        envId = None
+        for env in listOfEnvs:
+            if env['name'] == environmentName:
+                envId = env['id']
+        if envId is not None:
+            params['EnvironmentId'] = envId
+        else:
+            logging.error(f'Unable to determine envId from given name: {environmentName}. Defaulting to autocreated env')
     agentYaml = makeJsonPostRequest('targets/kube', apiKey, params)['yaml']
 
     # Now get all the env vars and add it to a list
