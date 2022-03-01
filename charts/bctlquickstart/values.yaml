@@ -42,6 +42,9 @@ agent:
 
 # Needed variables that must be set to register the agent
 apiKey: ""
+# Use existing Secret which stores API key instead of creating a new one. The value should be set with the `api-key` key inside the secret.
+# apiKey takes precedence over this value
+apiKeyExistingSecret: ""
 clusterName: ""
 
 # Optional IDP users to add to the agents policy

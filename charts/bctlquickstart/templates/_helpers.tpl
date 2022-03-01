@@ -128,3 +128,16 @@ Create the name of the agent clusterrole to use
 {{- define "bctlquickstartchart.agentClusterRoleName" -}}
 {{- default (print "bctl-" .Values.clusterName "-agent-clusterrole") .Values.agent.clusterRoleName }}
 {{- end }}
+
+{{/* 
+Ensure the user has passed an api key or a ref to a secret
+*/}}
+{{- define "bctlquickstartchart.apiKeyOrRef"}}
+{{- if .Values.apiKey }}
+{{- .Values.apiKey -}}
+{{- else if .Values.apiKeyExistingSecret }}
+{{- .Values.apiKeyExistingSecret -}}
+{{- else }}
+{{- fail "A valid .Values.apiKey or apiKeyExistingSecret entry required!" }}
+{{- end }}
+{{- end }}
