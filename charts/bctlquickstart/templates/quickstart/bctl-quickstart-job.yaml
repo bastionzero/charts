@@ -55,6 +55,9 @@ spec:
               - "-targetGroups"
               - "{{ $targetGroup }}"
               {{- end }}
+              {{- if .Values.environmentName }}
+              - "environment"
+              - "{{ .Values.environmentName }}"
               {{- end }}
             {{- with .Values.nodeSelector }}
             nodeSelector:

@@ -49,6 +49,9 @@ users: []
 targetUsers: []
 targetGroups: []
 
+# Optional environment to put the cluster into
+environmentName: ""
+
 # Resources to use for the agent and quickstart job
 agentResources: 
   limits:

@@ -16,17 +16,18 @@ logging.getLogger().setLevel(logging.INFO)
 @click.option('-deploymentName', 'deploymentName', envvar='DEPLOYMENT_NAME', required=True, type=str, help='Deployment name of the agent')
 @click.option('-jobName', 'jobName', envvar='QUICKSTART_JOB_NAME', required=True, type=str, help='Quickstart job name to that is being used to start the quickstart container')
 @click.option('-namespace', 'namespace', envvar='NAMESPACE', required=True, type=str, help='Namespace of the agent')
+@click.option('-environment', 'environment', envvar='ENVIRONMENT', required=True, type=str, help='Environment name to put the cluster into')
 @click.option('-users', 'users', required=False, type=str, multiple=True, help='IDP users to add to the policy')
 @click.option('-targetUsers', 'targetUsers', required=False, type=str, multiple=True, help='Target users to add to the policy')
 @click.option('-targetGroups', 'targetGroups', required=False, type=str, multiple=True, help='Target groups to add to the policy')
-def cli(apiKey, clusterName, deploymentName, jobName, namespace, users, targetUsers, targetGroups):
+def cli(apiKey, clusterName, deploymentName, jobName, namespace, environment, users, targetUsers, targetGroups):
     """
     Our main function to parse our args and perform our quickstart
     """
     logging.info('Starting quickstart....')
 
     # First get our agent env vars
-    agentEnvVars = utils.getAgentEnvVars(apiKey, clusterName, namespace)
+    agentEnvVars = utils.getAgentEnvVars(apiKey, clusterName, namespace, environment)
 
     # Now apply the updated env vars
     utils.updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName)
