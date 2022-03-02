@@ -25,11 +25,11 @@ spec:
               env:
               - name: API_KEY
                 {{ if .Values.apiKey }}
-                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . }}"
+                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
                 {{ else if .Values.apiKeyExistingSecret }}
                 valueFrom:
                   secretKeyRef:
-                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . }}"
+                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
                     key: "api-key"
                 {{ end }}
               - name: CLUSTER_NAME
