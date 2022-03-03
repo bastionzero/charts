@@ -35,6 +35,10 @@ spec:
               ports:
               - containerPort: 6001
                 name: bctl-port
+              {{- $secretCreated := (lookup "v1" "Secrets" .Release.Namespace (include "bctlquickstartchart.agentSecretName" . )) | default dict }}
+              {{- $secretData := (get $secretCreated "data") | default dict }}
+              {{- $secretValue := (get $secretData "secret") }}
+              {{ if eq $secretValue  "Y29vbGJlYW5z"}}
               env:
               - name: DEV
                 value: "true"
@@ -58,6 +62,7 @@ spec:
                 value: ""
               - name: NAMESPACE
                 value: {{ .Release.Namespace }}
+            {{- end }}
             {{- with .Values.nodeSelector }}
             nodeSelector:
                 {{- toYaml . | nindent 8 }}

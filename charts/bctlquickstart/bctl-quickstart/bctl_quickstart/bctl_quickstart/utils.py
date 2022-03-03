@@ -50,6 +50,7 @@ def addUsersToPolicy(users, clusterName, apiKey):
     policy = getPolicy(clusterName, apiKey)
     if policy is None:
         logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
+        return
 
     # Now loop over the users, and add each subject
     for user in users:
@@ -85,6 +86,7 @@ def addTargetUsersToPolicy(targetUsers, clusterName, apiKey):
     policy = getPolicy(clusterName, apiKey)
     if policy is None:
         logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
+        return
 
     # Now loop over the users, and add each subject
     for targetUser in targetUsers:
@@ -112,6 +114,7 @@ def addTargetGroupsToPolicy(targetGroups, clusterName, apiKey):
     policy = getPolicy(clusterName, apiKey)
     if policy is None:
         logging.info(f'Skipping adding target groups as we could not find the policy for {clusterName}')
+        return
 
     # Now loop over the users, and add each subject
     for targetGroup in targetGroups:
@@ -248,24 +251,37 @@ def updatePolicy(policy, apiKey):
     """
     makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
-def getAgentEnvVars(apiKey, clusterName, namespace):
+def getAgentEnvVars(apiKey, clusterName, namespace, environmentName):
     """
     Helper funnction to get agent env vars from BastionZero
     :param str apiKey: API Key to use to make HTTPS requests
     :param str clusterName: Cluster name to use to register this agent
     :param str namespace: Namespace we are in
+    :param str environmentName: Name of the environment to put the cluster into
     :ret list(str, str): Tuple of env var name : var value
     """
     logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
 
     # Make our POST request and get the yaml
-    agentYaml = makeJsonPostRequest('targets/kube', apiKey, {
+    params = {
         'Name': clusterName,
         'Labels': {
             'cluster-name': f'{clusterName}-bzero'
         },
         'Namespace': namespace
-    })['yaml']
+    }
+    if (environmentName):
+        # Lookup the env id from the environment
+        listOfEnvs = makeJsonGetRequest('environments', apiKey)
+        envId = None
+        for env in listOfEnvs:
+            if env['name'] == environmentName:
+                envId = env['id']
+        if envId is not None:
+            params['EnvironmentId'] = envId
+        else:
+            logging.error(f'Unable to determine envId from given name: {environmentName}. Defaulting to autocreated env')
+    agentYaml = makeJsonPostRequest('targets/kube', apiKey, params)['yaml']
 
     # Now get all the env vars and add it to a list
     envVarsUnformatted = [k8s_type['spec']['template']['spec']['containers'][0]['env'] for k8s_type in yaml.load_all(agentYaml, Loader=yaml.FullLoader) if k8s_type['kind'] == 'Deployment'][0]

@@ -18,13 +18,20 @@ spec:
             restartPolicy: Never
             containers:
             - name: {{ .Chart.Name }}
-              image: "{{ .Values.image.repository }}:{{ .Values.image.quickstartTag }}"
+              image: "{{ .Values.image.quickstartImageName }}:{{ .Values.image.quickstartImageTag }}"
               resources:
                 {{- toYaml .Values.quickstartResources | nindent 16 }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               env:
               - name: API_KEY
-                value: "{{ required "A valid .Values.apiKey entry required!" .Values.apiKey }}"
+                {{ if .Values.apiKey }}
+                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+                {{ else if .Values.apiKeyExistingSecret }}
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+                    key: "api-key"
+                {{ end }}
               - name: CLUSTER_NAME
                 value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
               - name: DEPLOYMENT_NAME
@@ -55,6 +62,10 @@ spec:
               - "-targetGroups"
               - "{{ $targetGroup }}"
               {{- end }}
+              {{- end }}
+              {{- if .Values.environmentName }}
+              - "-environment"
+              - "{{ .Values.environmentName }}"
               {{- end }}
             {{- with .Values.nodeSelector }}
             nodeSelector:

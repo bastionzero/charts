@@ -5,11 +5,11 @@
 replicaCount: 1
 
 image:
-  repository: bastionzero/bctl-quickstart
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  quickstartTag: "2.0.0" # For our quickstart job
-  agentImageTag: "latest" # For our actual agent
+  quickstartImageTag: "2.1.0" # For our quickstart job
+  quickstartImageName: bastionzero/bctl-quickstart
+  agentImageTag: "latest" # For our actual agent, we recommend overriding this value
   agentImageName: bastionzero/bctl-agent # For our actual agent
   agentImagePullSecrets: [] # For our actual agent
 
@@ -42,12 +42,18 @@ agent:
 
 # Needed variables that must be set to register the agent
 apiKey: ""
+# Use existing Secret which stores API key instead of creating a new one. The value should be set with the `api-key` key inside the secret.
+# apiKey takes precedence over this value
+apiKeyExistingSecret: ""
 clusterName: ""
 
 # Optional IDP users to add to the agents policy
 users: []
 targetUsers: []
 targetGroups: []
+
+# Optional environment to put the cluster into
+environmentName: ""
 
 # Resources to use for the agent and quickstart job
 agentResources: 
