@@ -18,26 +18,6 @@ TIMEOUT=300
 # Set our logging level
 logging.getLogger().setLevel(logging.INFO)
 
-
-def deleteJob(jobName, namespace):
-    """
-    Helper function to cleanup the Kube job (and along with it any traces of the API key)
-    :param str jobName: Job name to delete
-    :param str namespace: Namespace we are working inside
-    """
-    # Lets load our kube config
-    config.load_incluster_config()
-    batchApiClient = client.BatchV1Api()
-
-    # Delete our job now
-    logging.info(f'Deleting job: {jobName}...')
-
-    # Ref: https://github.com/kubernetes-client/python/issues/234
-    body = client.V1DeleteOptions(propagation_policy='Background')
-
-    batchApiClient.delete_namespaced_job(name=jobName, namespace=namespace, body=body)
-    
-
 def addUsersToPolicy(users, clusterName, apiKey):
     """
     Helper function to add users to a policy

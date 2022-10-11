@@ -38,16 +38,13 @@ def cli(apiKey, clusterName, deploymentName, jobName, namespace, environment, us
     # Now add any users, targetUsers, targetGroups to the policy that was created
     if users:
         utils.addUsersToPolicy(users, clusterName, apiKey)
-    
-    if targetUsers: 
-        utils.addTargetUsersToPolicy(targetUsers, clusterName, apiKey)
-    
-    if targetGroups: 
-        utils.addTargetGroupsToPolicy(targetGroups, clusterName, apiKey)
-    
-    logging.info(f'Finished setting up agent: {clusterName}!')
 
-    # Now delete the job
-    utils.deleteJob(jobName, namespace)
+    if targetUsers:
+        utils.addTargetUsersToPolicy(targetUsers, clusterName, apiKey)
+
+    if targetGroups:
+        utils.addTargetGroupsToPolicy(targetGroups, clusterName, apiKey)
+
+    logging.info(f'Finished setting up agent: {clusterName}!')
 
     logging.info('Finishing running kubernetes agent quickstart!')
