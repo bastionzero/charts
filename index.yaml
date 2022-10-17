@@ -3,6 +3,16 @@ entries:
   bctl-quickstart:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2022-10-17T14:49:17.401781527Z"
+    description: A Helm chart for BastionZeros Bctl Agent quickstart
+    digest: eccbd701d50578718d6b6c3f3b38f94782a37dbf105d338cf1c5b7b32f626327
+    name: bctl-quickstart
+    type: application
+    urls:
+    - https://github.com/bastionzero/charts/releases/download/bctl-quickstart-1.1.1/bctl-quickstart-1.1.1.tgz
+    version: 1.1.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2022-03-03T20:06:14.664602446Z"
     description: A Helm chart for BastionZeros Bctl Agent quickstart
     digest: d3343fa3b8420863a8756dd05fcdff9a72ad82a3772acf53baf8e11911a84d63
