@@ -13,3 +13,6 @@ rules:
     - apiGroups: [""]
       resources: ["secrets"]
       verbs: ["get", "update", "create"]
+    - apiGroups: [""]
+      resources: ["pods/log"]
+      verbs: ["get"]

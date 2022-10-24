@@ -261,11 +261,12 @@ def getAgentEnvVars(apiKey, clusterName, namespace, environmentName):
             params['EnvironmentId'] = envId
         else:
             logging.error(f'Unable to determine envId from given name: {environmentName}. Defaulting to autocreated env')
+
     agentYaml = makeJsonPostRequest('targets/kube', apiKey, params)['yaml']
 
     # Now get all the env vars and add it to a list
-    envVarsUnformatted = [k8s_type['spec']['template']['spec']['containers'][0]['env'] for k8s_type in yaml.load_all(agentYaml, Loader=yaml.FullLoader) if k8s_type['kind'] == 'Deployment'][0]
-    return [(envVar['name'], envVar['value']) for envVar in envVarsUnformatted]
+    envVars = [k8s_type['spec']['template']['spec']['containers'][0]['env'] for k8s_type in yaml.load_all(agentYaml, Loader=yaml.FullLoader) if k8s_type['kind'] == 'Deployment'][0]
+    return envVars
 
 def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
     """
@@ -292,16 +293,9 @@ def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
         logging.error(f'Unable to find any deployments with the name: {deploymentName}')
         raise Exception()
 
-    # Now loop through the list of env vars passed from bastion, and set them on the agent
-    newEnvVars = []
-    for name, value in agentEnvVars:
-        newEnvVar = {
-            'name': name,
-            'value': value
-        }
-        newEnvVars.append(newEnvVar)
-    deployment.spec.template.spec.containers[0].env = newEnvVars
-      
+    # Now update the env variables on the agent deployment with the values
+    # returned in the yaml from bastion's /targets/kube endpoint
+    deployment.spec.template.spec.containers[0].env = agentEnvVars
 
     # Patch the deployment 
     deploymentClient.patch_namespaced_deployment(
