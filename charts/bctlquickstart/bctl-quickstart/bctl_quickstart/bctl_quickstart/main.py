@@ -37,7 +37,7 @@ def cli(apiKey, clusterName, deploymentName, jobName, namespace, environment, us
 
     # Now add any users, targetUsers, targetGroups to the policy that was created
     if users:
-        utils.addUsersToPolicy(users, clusterName, apiKey)
+        utils.addSubjectsToPolicy(users, clusterName, apiKey)
 
     if targetUsers:
         utils.addTargetUsersToPolicy(targetUsers, clusterName, apiKey)
