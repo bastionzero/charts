@@ -18,14 +18,14 @@ TIMEOUT=300
 # Set our logging level
 logging.getLogger().setLevel(logging.INFO)
 
-def addUsersToPolicy(users, clusterName, apiKey):
+def addSubjectsToPolicy(subjects, clusterName, apiKey):
     """
-    Helper function to add users to a policy
-    :param list(str) users: List of IDP users
+    Helper function to add subjects to a policy
+    :param list(str) subjects: List of IDP subjects
     :param str clusterName: Cluster name to use to register this agent
     :param str apiKey: API Key to use to make HTTPS requests
     """
-    logging.info(f'Adding users: [{",".join(users)}] to policy for cluster: {clusterName}...')
+    logging.info(f'Adding subjects: [{",".join(subjects)}] to policy for cluster: {clusterName}...')
     # First get our policy
     policy = getPolicy(clusterName, apiKey)
     if policy is None:
@@ -33,26 +33,26 @@ def addUsersToPolicy(users, clusterName, apiKey):
         return
 
     # Now loop over the users, and add each subject
-    for user in users:
+    for subject in subjects:
         # Get the user Id and create our subjectToAdd dict
         try:
-            userInfo = getUserInfoFromEmail(user, apiKey)
+            subjectInfo = getSubjectInfoFromEmail(subject, apiKey)
         except Exception:
-            logging.warning(f'Error getting user info for {user}. Ensure you used the right email. Skipping...')
+            logging.warning(f'Error getting user info for {subject}. Ensure you used the right email. Skipping...')
             continue
         
         subjectToAdd = {
-            'id': userInfo['id'],
-            'type': 'User'
+            'id': subjectInfo['id'],
+            'type':  subjectInfo['type']
         }
-        if userInfo['id'] not in [user['id'] for user in policy['subjects']]:
+        if subjectInfo['id'] not in [subject['id'] for subject in policy['subjects']]:
             policy['subjects'].append(subjectToAdd)
         else:
-            logging.warning(f'Skipping {user} as the policy already has them as a subject')
+            logging.warning(f'Skipping {subject} as the policy already has them as a subject')
     
     # Now update the policy
     updatePolicy(policy, apiKey)
-    logging.info(f'Finished updating users!')
+    logging.info(f'Finished updating subjects!')
 
 def addTargetUsersToPolicy(targetUsers, clusterName, apiKey):
     """
@@ -200,12 +200,12 @@ def makeDataGetRequest(endpoint, apiKey, data={}):
     
     return toReturn
 
-def getUserInfoFromEmail(userEmail, apiKey):
+def getSubjectInfoFromEmail(subjectEmail, apiKey):
     """
-    Helper function to get a users id from their email
-    :ret dict: Users info including email and Id
+    Helper function to get a subject id from their email
+    :ret dict: Subject info including email, Id, and type
     """
-    return makeJsonGetRequest(f'users/{userEmail}', apiKey)
+    return makeJsonGetRequest(f'subjects/{subjectEmail}', apiKey)
 
 def getPolicy(clusterName, apiKey):
     """
