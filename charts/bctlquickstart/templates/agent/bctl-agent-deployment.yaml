@@ -35,34 +35,34 @@ spec:
               ports:
               - containerPort: 6001
                 name: bctl-port
-              {{- $secretCreated := (lookup "v1" "Secrets" .Release.Namespace (include "bctlquickstartchart.agentSecretName" . )) | default dict }}
-              {{- $secretData := (get $secretCreated "data") | default dict }}
-              {{- $secretValue := (get $secretData "secret") }}
-              {{ if eq $secretValue  "Y29vbGJlYW5z"}}
               env:
-              - name: DEV
-                value: "true"
               - name: SERVICE_URL
-                value: ""
-              - name: ACTIVATION_TOKEN
-                value: ""
+                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
               - name: TARGET_NAME
                 value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
-              - name: TARGET_ID
-                value: ""
-              - name: ORG_ID
-                value: ""
-              - name: IDP_ORG_ID
-                value: ""
-              - name: IDP_PROVIDER
-                value: ""
-              - name: IDP_CUSTOM_ISSUER
-                value: ""
-              - name: ENVIRONMENT
-                value: ""
+              - name: API_KEY
+                {{ if .Values.apiKey }}
+                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+                {{ else if .Values.apiKeyExistingSecret }}
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+                    key: "api-key"
+                {{ end }}
               - name: NAMESPACE
                 value: {{ .Release.Namespace }}
-            {{- end }}
+              - name: DEV
+                value: {{ printf "'%t'" .Values.isDev }}
+              - name: LOG_LEVEL
+                value: {{ .Values.logLevel }}
+              {{ if .Values.idp.expectedProvider }}
+              - name: IDP_PROVIDER
+                value: {{ .Values.idp.expectedProvider }}
+              {{ end }}
+              {{ if .Values.idp.expectedOrgId }}
+              - name: IDP_ORG_ID
+                value: {{ .Values.idp.expectedOrgId }}
+              {{ end }}
             {{- with .Values.nodeSelector }}
             nodeSelector:
                 {{- toYaml . | nindent 8 }}

@@ -29,7 +29,9 @@ quickstart:
   # The name of the kube job to create
   # If not provided a default one will be created following  the name "bctl-{clusterName}-quickstart-job"
   quickstartJobName: ""
-  
+
+isDev: false
+
 agent:
   # If not set, the following will be defaulted to: "bctl-{clusterName}-agent-{resource}"
   # The name of the service account to use.
@@ -79,3 +81,9 @@ tolerations: []
 affinity: {}
 
 serviceUrl: "https://cloud.bastionzero.com"
+
+logLevel: "debug"
+
+idp:
+  expectedProvider: ""
+  expectedOrgId: ""
