@@ -54,8 +54,10 @@ users: []
 targetUsers: []
 targetGroups: []
 
-# Optional environment to put the cluster into
+# Optional environment to put the cluster into (deprecated)
 environmentName: ""
+# Optional environment to put the cluster into. Specify the ID.
+environmentId: ""
 
 # Resources to use for the agent and quickstart job
 agentResources: 

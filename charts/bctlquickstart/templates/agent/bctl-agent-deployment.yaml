@@ -59,6 +59,10 @@ spec:
                 value: {{ printf "'%t'" .Values.isDev }}
               - name: LOG_LEVEL
                 value: {{ .Values.logLevel }}
+              {{ if .Values.environmentId }}
+              - name: ENVIRONMENT
+                value: {{ .Values.environmentId }}
+              {{ end }}
               {{ if .Values.idp.expectedProvider }}
               - name: IDP_PROVIDER
                 value: {{ .Values.idp.expectedProvider }}
