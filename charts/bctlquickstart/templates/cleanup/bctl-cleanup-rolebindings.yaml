@@ -1,0 +1,19 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "bctlquickstartchart.cleanupRoleBindingName" . }}
+  labels:
+    {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  namespace: {{ .Release.Namespace }}
+subjects:
+    - kind: ServiceAccount
+      namespace: {{ .Release.Namespace }}
+      name: {{ include "bctlquickstartchart.cleanupServiceAccountName" . }}
+roleRef:
+    kind: Role
+    name: {{ include "bctlquickstartchart.cleanupRoleName" . }}
+    apiGroup: rbac.authorization.k8s.io

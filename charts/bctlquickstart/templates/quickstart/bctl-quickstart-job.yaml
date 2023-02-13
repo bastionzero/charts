@@ -12,6 +12,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
     backoffLimit: 0
+    ttlSecondsAfterFinished: 300 # Leave job for 5 minutes if failed/success
     template:
         spec:
             serviceAccountName: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}

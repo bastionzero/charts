@@ -79,6 +79,34 @@ Create the bctl-quickstart-RoleBinding name
 {{- printf "%s-rolebinding" (include "bctlquickstartchart.quickstartServiceAccountName" .) }}
 {{- end }}
 
+{{/*
+Create the name of the cleanup service account to use
+*/}}
+{{- define "bctlquickstartchart.cleanupServiceAccountName" -}}
+{{- print "bctl-" .Values.clusterName "-cleanup-sa" }}
+{{- end }}
+
+{{/*
+Create the bctl-cleanup-job name
+*/}}
+{{- define "bctlquickstartchart.cleanupJobName" -}}
+{{- print "bctl-" .Values.clusterName "-cleanup-job" }}
+{{- end }}
+
+{{/*
+Create the bctl-cleanup-Role name
+*/}}
+{{- define "bctlquickstartchart.cleanupRoleName" -}}
+{{- printf "%s-role" (include "bctlquickstartchart.cleanupServiceAccountName" .) }}
+{{- end }}
+
+{{/*
+Create the bctl-cleanup-RoleBinding name
+*/}}
+{{- define "bctlquickstartchart.cleanupRoleBindingName" -}}
+{{- printf "%s-rolebinding" (include "bctlquickstartchart.cleanupServiceAccountName" .) }}
+{{- end }}
+
 
 {{/*
 Create the name of the agent service account to use
