@@ -51,6 +51,10 @@ spec:
                 {{ end }}
               - name: NAMESPACE
                 value: {{ .Release.Namespace }}
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
               - name: DEV
                 value: {{ printf "'%t'" .Values.isDev }}
               - name: LOG_LEVEL
