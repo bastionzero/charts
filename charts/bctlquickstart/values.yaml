@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  quickstartImageTag: "2.1.3" # For our quickstart job
+  quickstartImageTag: "3.0.0" # For our quickstart job
   quickstartImageName: bastionzero/bctl-quickstart
   agentImageTag: "latest" # For our actual agent, we recommend overriding this value
   agentImageName: bastionzero/bctl-agent # For our actual agent
