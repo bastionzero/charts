@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  quickstartImageTag: "2.1.3" # For our quickstart job
+  quickstartImageTag: "3.0.0" # For our quickstart job
   quickstartImageName: bastionzero/bctl-quickstart
   agentImageTag: "latest" # For our actual agent, we recommend overriding this value
   agentImageName: bastionzero/bctl-agent # For our actual agent
@@ -29,7 +29,9 @@ quickstart:
   # The name of the kube job to create
   # If not provided a default one will be created following  the name "bctl-{clusterName}-quickstart-job"
   quickstartJobName: ""
-  
+
+isDev: false
+
 agent:
   # If not set, the following will be defaulted to: "bctl-{clusterName}-agent-{resource}"
   # The name of the service account to use.
@@ -52,8 +54,8 @@ users: []
 targetUsers: []
 targetGroups: []
 
-# Optional environment to put the cluster into
-environmentName: ""
+# Optional environment to put the cluster into. Specify the ID.
+environmentId: ""
 
 # Resources to use for the agent and quickstart job
 agentResources: 
@@ -79,3 +81,9 @@ tolerations: []
 affinity: {}
 
 serviceUrl: "https://cloud.bastionzero.com"
+
+logLevel: "debug"
+
+idp:
+  expectedProvider: ""
+  expectedOrgId: ""

@@ -1,14 +1,11 @@
 # Built-in modules 
-import yaml
 import os
 import time
-import json
 import logging
 from datetime import datetime, timedelta
 
 # 3rd party modules
 import requests
-from kubernetes import client, config, watch
 
 # Global variables
 SERVICE_URL = os.environ.get('SERVICE_URL', 'https://cloud.bastionzero.com')
@@ -231,101 +228,6 @@ def updatePolicy(policy, apiKey):
     """
     makeJsonPatchRequest(f'policies/kubernetes/{policy["id"]}', apiKey, policy)
 
-def getAgentEnvVars(apiKey, clusterName, namespace, environmentName):
-    """
-    Helper funnction to get agent env vars from BastionZero
-    :param str apiKey: API Key to use to make HTTPS requests
-    :param str clusterName: Cluster name to use to register this agent
-    :param str namespace: Namespace we are in
-    :param str environmentName: Name of the environment to put the cluster into
-    :ret list(str, str): Tuple of env var name : var value
-    """
-    logging.info(f'Getting agent yaml from BastionZero for agent name: {clusterName}...')
-
-    # Make our POST request and get the yaml
-    params = {
-        'Name': clusterName,
-        'Labels': {
-            'cluster-name': f'{clusterName}-bzero'
-        },
-        'Namespace': namespace
-    }
-    if (environmentName):
-        # Lookup the env id from the environment
-        listOfEnvs = makeJsonGetRequest('environments', apiKey)
-        envId = None
-        for env in listOfEnvs:
-            if env['name'] == environmentName:
-                envId = env['id']
-        if envId is not None:
-            params['EnvironmentId'] = envId
-        else:
-            logging.error(f'Unable to determine envId from given name: {environmentName}. Defaulting to autocreated env')
-
-    agentYaml = makeJsonPostRequest('targets/kube', apiKey, params)['yaml']
-
-    # Now get all the env vars and add it to a list
-    envVars = [k8s_type['spec']['template']['spec']['containers'][0]['env'] for k8s_type in yaml.load_all(agentYaml, Loader=yaml.FullLoader) if k8s_type['kind'] == 'Deployment'][0]
-    return envVars
-
-def updateAgentEnvVars(agentEnvVars, deploymentName, namespace, clusterName):
-    """
-    Helper function to update our agent env vars
-    :param list(str, str) agentEnvVars: Agent env vars to apply
-    :param str deploymentName: Deployment name of the agent we are starting
-    :param str namespace: Namespace we are in
-    :param str clusterName: Cluster name we are looking for
-    """
-    logging.info(f'Updating agent env vars for deployment: {deploymentName}...')
-    # Lets load our kube config
-    config.load_incluster_config()
-    deploymentClient = client.AppsV1Api()
-
-    # Get our deployment
-    resp = deploymentClient.list_namespaced_deployment(namespace=namespace)
-    deployment = None
-    for potentialDeployment in resp.items:
-        if (potentialDeployment.metadata.name == deploymentName):
-            deployment = potentialDeployment
-            break
-    
-    if deployment is None:
-        logging.error(f'Unable to find any deployments with the name: {deploymentName}')
-        raise Exception()
-
-    # Now update the env variables on the agent deployment with the values
-    # returned in the yaml from bastion's /targets/kube endpoint
-    deployment.spec.template.spec.containers[0].env = agentEnvVars
-
-    # Patch the deployment 
-    deploymentClient.patch_namespaced_deployment(
-        name=deploymentName, namespace=namespace, body=deployment
-    )
-
-    logging.info(f'Waiting for {deploymentName} to be ready. Timeout set to: {TIMEOUT} seconds...')
-    # Now wait for it to become ready and start
-    w = watch.Watch()
-    core_v1 = client.CoreV1Api()
-    appNameTag = f'bctl-{clusterName}-agent'
-    for event in w.stream(func=core_v1.list_namespaced_pod,
-                            namespace=namespace,
-                            label_selector=f'app={appNameTag}',
-                            timeout_seconds=TIMEOUT):
-        podTag = event['object'].metadata.labels['app']
-        if podTag != appNameTag:
-            pass 
-
-        if event["object"].status.phase == "Running":
-            w.stop()
-            logging.info(f'{clusterName} agent is ready!')
-            return
-        
-        logging.info(f'Still waiting...')
-    
-    # Else something went wrong, raise an exception
-    logging.error(f'Error waiting for {deploymentName} to be ready.')
-    raise Exception()
-
 def checkAgentOnlineBastion(apiKey, clusterName):
     """
     Helper function to see if an agent is online via BastionZero
@@ -362,15 +264,3 @@ def checkAgentOnlineBastion(apiKey, clusterName):
         raise Exception()
 
     logging.info(f'Agent: {clusterName} has come online!')
-
-def skipIfAlreadyExists(e):
-    """
-    Helper function to skip if the exception states the object already exists
-    Ref: https://stackoverflow.com/questions/45926889/with-python-kubernetes-client-how-to-replicate-kubectl-create-f-generally
-    :param Exception e: Exception object we are handling
-    """
-    info = json.loads(e.api_exceptions[0].body)
-    if info.get('reason').lower() == 'alreadyexists':
-        pass
-    else:
-        raise e
