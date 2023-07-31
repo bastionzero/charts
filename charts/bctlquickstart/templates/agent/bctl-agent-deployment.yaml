@@ -10,76 +10,76 @@ metadata:
   {{- end }}
   namespace: {{ .Release.Namespace }}
 spec:
-    replicas: 1
-    selector:
-        matchLabels:
-            app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
-    template:
-        metadata:
-            labels:
-                app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
-        spec:
-            serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
-            {{- if .Values.image.agentImagePullSecrets }}
-            imagePullSecrets:
-            {{- range .Values.image.agentImagePullSecrets }}
-              - name: {{ . }}
-            {{- end }}
-            {{- end }}
-            containers:
-            - name: bctl-agent
-              image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentImageTag entry required!" .Values.image.agentImageTag }}"
-              resources:
-                {{- toYaml .Values.agentResources | nindent 16 }}
-              imagePullPolicy: {{ .Values.image.pullPolicy }}
-              ports:
-              - containerPort: 6001
-                name: bctl-port
-              env:
-              - name: SERVICE_URL
-                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
-              - name: TARGET_NAME
-                value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
-              - name: API_KEY
-                {{ if .Values.apiKey }}
-                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
-                {{ else if .Values.apiKeyExistingSecret }}
-                valueFrom:
-                  secretKeyRef:
-                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
-                    key: "api-key"
-                {{ end }}
-              - name: NAMESPACE
-                value: {{ .Release.Namespace }}
-              - name: POD_NAME
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.name
-              - name: DEV
-                value: {{ printf "'%t'" .Values.isDev }}
-              - name: LOG_LEVEL
-                value: {{ .Values.logLevel }}
-              {{ if .Values.environmentId }}
-              - name: ENVIRONMENT
-                value: {{ .Values.environmentId }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
+    spec:
+      serviceAccountName: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+      {{- if .Values.image.agentImagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.agentImagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: bctl-agent
+          image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentImageTag entry required!" .Values.image.agentImageTag }}"
+          resources:
+            {{- toYaml .Values.agentResources | nindent 14 }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 6001
+              name: bctl-port
+          env:
+            - name: SERVICE_URL
+              value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
+            - name: TARGET_NAME
+              value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
+            - name: API_KEY
+              {{ if .Values.apiKey }}
+              value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+              {{ else if .Values.apiKeyExistingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+                  key: "api-key"
               {{ end }}
-              {{ if .Values.idp.expectedProvider }}
-              - name: IDP_PROVIDER
-                value: {{ .Values.idp.expectedProvider }}
-              {{ end }}
-              {{ if .Values.idp.expectedOrgId }}
-              - name: IDP_ORG_ID
-                value: {{ .Values.idp.expectedOrgId }}
-              {{ end }}
-            {{- with .Values.nodeSelector }}
-            nodeSelector:
-                {{- toYaml . | nindent 8 }}
-            {{- end }}
-            {{- with .Values.affinity }}
-            affinity:
-                {{- toYaml . | nindent 8 }}
-            {{- end }}
-            {{- with .Values.tolerations }}
-            tolerations:
-                {{- toYaml . | nindent 8 }}
-            {{- end }}
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: DEV
+              value: {{ printf "'%t'" .Values.isDev }}
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel }}
+            {{ if .Values.environmentId }}
+            - name: ENVIRONMENT
+              value: {{ .Values.environmentId }}
+            {{ end }}
+            {{ if .Values.idp.expectedProvider }}
+            - name: IDP_PROVIDER
+              value: {{ .Values.idp.expectedProvider }}
+            {{ end }}
+            {{ if .Values.idp.expectedOrgId }}
+            - name: IDP_ORG_ID
+              value: {{ .Values.idp.expectedOrgId }}
+            {{ end }}
+        {{- with .Values.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.affinity }}
+        affinity:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
