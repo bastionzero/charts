@@ -60,14 +60,14 @@ spec:
               {{- end }}
             {{- with .Values.nodeSelector }}
             nodeSelector:
-              {{- toYaml . | nindent 8 }}
+              {{- toYaml . | nindent 16 }}
             {{- end }}
             {{- with .Values.affinity }}
             affinity:
-              {{- toYaml . | nindent 8 }}
+              {{- toYaml . | nindent 16 }}
             {{- end }}
             {{- with .Values.tolerations }}
             tolerations:
-              {{- toYaml . | nindent 8 }}
+              {{- toYaml . | nindent 16 }}
             {{- end }}
 {{- end }}
