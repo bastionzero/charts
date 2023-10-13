@@ -66,6 +66,8 @@ agentResources:
     cpu: 1
     memory: 1G
 
+priorityClass: "system-cluster-critical"
+
 quickstartResources: 
   limits:
     cpu: 1

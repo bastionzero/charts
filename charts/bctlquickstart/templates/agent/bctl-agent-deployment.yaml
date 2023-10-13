@@ -26,6 +26,9 @@ spec:
               - name: {{ . }}
             {{- end }}
             {{- end }}
+            {{- if .Values.priorityClass }}
+            priorityClassName: {{ .Values.priorityClass }}
+            {{- end }}
             containers:
             - name: bctl-agent
               image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentImageTag entry required!" .Values.image.agentImageTag }}"
