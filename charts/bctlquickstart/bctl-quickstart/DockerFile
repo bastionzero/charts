@@ -1,4 +1,4 @@
-FROM python:rc-alpine3.12
+FROM python:3.12-alpine3.18
 
 # Install kubectl
 RUN apk add curl && \
