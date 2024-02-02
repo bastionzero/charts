@@ -4,16 +4,17 @@ metadata:
   name: {{ include "bctlquickstartchart.agentRoleBindingName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   namespace: {{ .Release.Namespace }}
 subjects:
-    - kind: ServiceAccount
-      namespace: {{ .Release.Namespace }}
-      name: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
+  - kind: ServiceAccount
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "bctlquickstartchart.agentServiceAccountName" . }}
 roleRef:
-    kind: Role
-    name: {{ include "bctlquickstartchart.agentRoleName" . }}
-    apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "bctlquickstartchart.agentRoleName" . }}
+  apiGroup: rbac.authorization.k8s.io

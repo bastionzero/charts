@@ -5,69 +5,70 @@ metadata:
   name: {{ include "bctlquickstartchart.quickstartJobName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quickstart
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
   namespace: {{ .Release.Namespace }}
 spec:
-    backoffLimit: 0
-    ttlSecondsAfterFinished: 300 # Leave job for 5 minutes if failed/success
-    template:
-        spec:
-            serviceAccountName: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}
-            restartPolicy: Never
-            containers:
-            - name: {{ .Chart.Name }}
-              image: "{{ .Values.image.quickstartImageName }}:{{ .Values.image.quickstartImageTag }}"
-              resources:
-                {{- toYaml .Values.quickstartResources | nindent 16 }}
-              imagePullPolicy: {{ .Values.image.pullPolicy }}
-              env:
-              - name: API_KEY
-                {{ if .Values.apiKey }}
-                value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
-                {{ else if .Values.apiKeyExistingSecret }}
-                valueFrom:
-                  secretKeyRef:
-                    name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
-                    key: "api-key"
-                {{ end }}
-              - name: CLUSTER_NAME
-                value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
-              - name: SERVICE_URL
-                value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
-              command: 
-              - bctl-quickstart
-              args:
-              {{- if .Values.users }}
-              {{- range $user := .Values.users }}
-              - "-users"
-              - "{{ $user }}"
-              {{- end }}
-              {{- end }}
-              {{- if .Values.targetUsers }}
-              {{- range $targetUser := .Values.targetUsers }}
-              - "-targetUsers"
-              - "{{ $targetUser }}"
-              {{- end }}
-              {{- end }}
-              {{- if .Values.targetGroups }}
-              {{- range $targetGroup := .Values.targetGroups }}
-              - "-targetGroups"
-              - "{{ $targetGroup }}"
-              {{- end }}
-              {{- end }}
-            {{- with .Values.nodeSelector }}
-            nodeSelector:
-              {{- toYaml . | nindent 16 }}
-            {{- end }}
-            {{- with .Values.affinity }}
-            affinity:
-              {{- toYaml . | nindent 16 }}
-            {{- end }}
-            {{- with .Values.tolerations }}
-            tolerations:
-              {{- toYaml . | nindent 16 }}
-            {{- end }}
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300 # Leave job for 5 minutes if failed/success
+  template:
+    spec:
+      serviceAccountName: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}
+      restartPolicy: Never
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.quickstartImageName }}:{{ .Values.image.quickstartImageTag }}"
+        resources:
+          {{- toYaml .Values.quickstartResources | nindent 16 }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: API_KEY
+          {{ if .Values.apiKey }}
+          value: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+          {{ else if .Values.apiKeyExistingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: "{{- include "bctlquickstartchart.apiKeyOrRef" . -}}"
+              key: "api-key"
+          {{ end }}
+        - name: CLUSTER_NAME
+          value: "{{ required "A valid .Values.clusterName entry required!" .Values.clusterName }}"
+        - name: SERVICE_URL
+          value: "{{ required "A valid .Values.serviceUrl entry required!" .Values.serviceUrl }}"
+        command: 
+        - bctl-quickstart
+        args:
+        {{- if .Values.users }}
+        {{- range $user := .Values.users }}
+        - "-users"
+        - "{{ $user }}"
+        {{- end }}
+        {{- end }}
+        {{- if .Values.targetUsers }}
+        {{- range $targetUser := .Values.targetUsers }}
+        - "-targetUsers"
+        - "{{ $targetUser }}"
+        {{- end }}
+        {{- end }}
+        {{- if .Values.targetGroups }}
+        {{- range $targetGroup := .Values.targetGroups }}
+        - "-targetGroups"
+        - "{{ $targetGroup }}"
+        {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 16 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 16 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 16 }}
+      {{- end }}
 {{- end }}

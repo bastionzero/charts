@@ -5,17 +5,18 @@ metadata:
   name: {{ include "bctlquickstartchart.quickstartRoleBindingName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quickstart
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   namespace: {{ .Release.Namespace }}
 subjects:
-    - kind: ServiceAccount
-      namespace: {{ .Release.Namespace }}
-      name: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}
+  - kind: ServiceAccount
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "bctlquickstartchart.quickstartServiceAccountName" . }}
 roleRef:
-    kind: Role
-    name: {{ include "bctlquickstartchart.quickstartRoleName" . }}
-    apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "bctlquickstartchart.quickstartRoleName" . }}
+  apiGroup: rbac.authorization.k8s.io
 {{- end }}

@@ -5,19 +5,20 @@ metadata:
   name: {{ include "bctlquickstartchart.quickstartRoleName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quickstart
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   namespace: {{ .Release.Namespace }}
 rules:
-    - apiGroups: [""]
-      resources: ["pods"]
-      verbs: ["watch"]
-    - apiGroups: ["apps"]
-      resources: ["deployments"]
-      verbs: ["get", "patch", "list"]
-    - apiGroups: ["batch"]
-      resources: ["jobs"]
-      verbs: ["delete"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch", "list"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["delete"]
 {{- end }}
