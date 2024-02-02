@@ -21,8 +21,10 @@ spec:
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.quickstartImageName }}:{{ .Values.image.quickstartImageTag }}"
+        {{- with .Values.quickstartResources }}
         resources:
-          {{- toYaml .Values.quickstartResources | nindent 16 }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: API_KEY

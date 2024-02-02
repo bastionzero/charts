@@ -38,8 +38,10 @@ spec:
       containers:
       - name: bctl-agent
         image: "{{ required "A valid .Values.image.agentImageName entry required!" .Values.image.agentImageName}}:{{ required "A valid .Values.image.agentImageTag entry required!" .Values.image.agentImageTag }}"
+        {{- with .Values.agentResources }}
         resources:
-          {{- toYaml .Values.agentResources | nindent 16 }}
+        {{- toYaml . | nindent 10 }}
+        {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 6001

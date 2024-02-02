@@ -60,24 +60,25 @@ targetGroups: []
 # Optional environment to put the cluster into. Specify the ID.
 environmentId: ""
 
-# Resources to use for the agent and quickstart job
-agentResources: 
-  limits:
-    cpu: 1
-    memory: 1G
-  requests:
-    cpu: 1
-    memory: 1G
+# Resources to use for the agent
+agentResources: {}
+  # limits:
+  #   cpu: 1
+  #   memory: 1G
+  # requests:
+  #   cpu: 1
+  #   memory: 1G
 
 priorityClass: "system-cluster-critical"
 
-quickstartResources: 
-  limits:
-    cpu: 1
-    memory: 1G
-  requests:
-    cpu: 1
-    memory: 1G
+# Resources to use for quickstart job
+quickstartResources: {}
+  # limits:
+  #   cpu: 1
+  #   memory: 1G
+  # requests:
+  #   cpu: 1
+  #   memory: 1G
 
 nodeSelector: {}
 
