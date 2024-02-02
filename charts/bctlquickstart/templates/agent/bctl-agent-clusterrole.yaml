@@ -4,18 +4,19 @@ metadata:
   name: {{ include "bctlquickstartchart.agentClusterRoleName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   namespace: {{ .Release.Namespace }}
 rules:
-    - apiGroups: [""]
-      resources: ["users", "groups", "serviceaccounts"]
-      verbs: ["impersonate"]
-    - apiGroups: [""]
-      resources: ["serviceaccounts"]
-      verbs: ["create", "delete", "list", "get"]
-    - apiGroups: ["rbac.authorization.k8s.io"]
-      resources: ["clusterrolebindings", "rolebindings"]
-      verbs: ["list"]
+  - apiGroups: [""]
+    resources: ["users", "groups", "serviceaccounts"]
+    verbs: ["impersonate"]
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["create", "delete", "list", "get"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterrolebindings", "rolebindings"]
+    verbs: ["list"]

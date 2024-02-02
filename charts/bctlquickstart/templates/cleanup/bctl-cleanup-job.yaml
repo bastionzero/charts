@@ -8,6 +8,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cleanup
 spec:
   ttlSecondsAfterFinished: 300 # Leave job for 5 minutes if failed/success
   template:
