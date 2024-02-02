@@ -20,6 +20,10 @@ spec:
       app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
   template:
     metadata:
+      {{- with .Values.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         {{- include "bctlquickstartchart.labels" . | nindent 8 }}
         app.kubernetes.io/component: agent
@@ -84,13 +88,13 @@ spec:
         {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
-          {{- toYaml . | nindent 16 }}
+      {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
-          {{- toYaml . | nindent 16 }}
+      {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
-          {{- toYaml . | nindent 16 }}
+      {{- toYaml . | nindent 8 }}
       {{- end }}
