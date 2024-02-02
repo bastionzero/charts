@@ -19,6 +19,9 @@ fullnameOverride: "bctl-quickstart-chart"
 # Annotations to add to our objects
 annotations: {}
 
+# -- Additional labels to add to all resources
+additionalLabels: {}
+
 quickstart:
   # Controls if we create any of the quickstart objects
   create: true
