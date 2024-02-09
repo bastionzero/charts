@@ -24,7 +24,7 @@ quickstart:
   create: true
   
   # The name of the service account to use.
-  quickstartServiceAccount: "bctl-quickstart-sa"
+  quickstartServiceAccount: ""
 
   # The name of the kube job to create
   # If not provided a default one will be created following  the name "bctl-{clusterName}-quickstart-job"
