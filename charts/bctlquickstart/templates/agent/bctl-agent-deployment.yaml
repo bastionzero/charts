@@ -10,7 +10,7 @@ metadata:
   {{- end }}
   namespace: {{ .Release.Namespace }}
 spec:
-    replicas: 1
+    replicas: {{ .Values.replicaCount }}
     selector:
         matchLabels:
             app: {{ include "bctlquickstartchart.agentDeploymentName" . }}
@@ -84,5 +84,9 @@ spec:
             {{- end }}
             {{- with .Values.tolerations }}
             tolerations:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+            {{- with .Values.agent.topologySpreadConstraints }}
+            topologySpreadConstraints:
                 {{- toYaml . | nindent 16 }}
             {{- end }}
