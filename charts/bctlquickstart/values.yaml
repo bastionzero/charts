@@ -24,7 +24,7 @@ quickstart:
   create: true
   
   # The name of the service account to use.
-  quickstartServiceAccount: "bctl-quickstart-sa"
+  quickstartServiceAccount: ""
 
   # The name of the kube job to create
   # If not provided a default one will be created following  the name "bctl-{clusterName}-quickstart-job"
@@ -41,6 +41,9 @@ agent:
   deploymentName: ""
   clusterName: ""
   clusterRoleName: ""
+  # Pod topology spread constraints for agent deployment
+  # ref. https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  topologySpreadConstraints: []
 
 # Needed variables that must be set to register the agent
 apiKey: ""
