@@ -12,7 +12,7 @@ metadata:
   {{- end }}
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "bctlquickstartchart.selectorLabels" . | nindent 6 }}

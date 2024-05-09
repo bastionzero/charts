@@ -59,7 +59,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the quickstart service account to use
 */}}
 {{- define "bctlquickstartchart.quickstartServiceAccountName" -}}
-{{- .Values.quickstart.quickstartServiceAccount }}
+{{- default (print "bctl-" .Values.clusterName "-quickstart-sa")  .Values.quickstart.quickstartServiceAccount }}
 {{- end }}
 
 {{/*
