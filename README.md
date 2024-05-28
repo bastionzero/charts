@@ -22,3 +22,7 @@ You can then run `helm search repo bastionzero` to see the charts.
 
 <!-- Keep full URL links to repo files because this README syncs from main to gh-pages.  -->
 [Apache 2.0 License](https://github.com/bastionzero/charts/blob/main/LICENSE).
+
+## Open Source Software Credits
+
+[Credits](https://docs.bastionzero.com/docs/credits/helm-provider)
