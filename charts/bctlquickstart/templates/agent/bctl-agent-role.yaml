@@ -4,15 +4,16 @@ metadata:
   name: {{ include "bctlquickstartchart.agentRoleName" . }}
   labels:
     {{- include "bctlquickstartchart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   namespace: {{ .Release.Namespace }}
 rules:
-    - apiGroups: [""]
-      resources: ["secrets"]
-      verbs: ["get", "update", "create"]
-    - apiGroups: [""]
-      resources: ["pods/log", "events"]
-      verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "update", "create"]
+  - apiGroups: [""]
+    resources: ["pods/log", "events"]
+    verbs: ["get", "list"]
